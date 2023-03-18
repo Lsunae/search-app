@@ -2,8 +2,8 @@ package com.lsunae.search_app.view
 
 import android.os.Bundle
 import com.lsunae.search_app.R
-import com.lsunae.search_app.constant.MenuType
 import com.lsunae.search_app.databinding.ActivityMainBinding
+import com.lsunae.search_app.util.MenuType
 import com.lsunae.search_app.view.base.BaseActivity
 import com.lsunae.search_app.view.search.SearchFragment
 import com.lsunae.search_app.view.storage.StorageFragment
