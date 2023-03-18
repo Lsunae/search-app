@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">search-app</string>
+
+    <string name="menu_search">검색</string>
+    <string name="menu_storage">보관함</string>
 </resources>
