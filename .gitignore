@@ -13,3 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/src/main/java/com/lsunae/search_app/util/ApiKey.kt
