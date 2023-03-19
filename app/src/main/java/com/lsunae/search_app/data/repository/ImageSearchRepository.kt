@@ -4,5 +4,5 @@ import com.lsunae.search_app.data.model.ImageSearchResponse
 import retrofit2.Response
 
 interface ImageSearchRepository {
-    suspend fun searchImage(query: String, sort: String): Response<ImageSearchResponse>
+    suspend fun searchImage(query: String): Response<ImageSearchResponse>
 }

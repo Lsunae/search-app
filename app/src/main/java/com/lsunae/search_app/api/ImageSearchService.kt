@@ -12,7 +12,6 @@ interface ImageSearchService {
     suspend fun searchImage(
         @Header("Authorization") apiKey: String = Constants.AUTH_HEADER,
         @Query("query") query: String,
-        @Query("sort") sort: String,
         @Query("page") page: Int,
         @Query("size") size: Int
     ): Response<ImageSearchResponse>
