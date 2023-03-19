@@ -4,13 +4,13 @@
     <item
         android:id="@+id/action_search"
         android:enabled="true"
-        android:icon="@drawable/search_icon"
+        android:icon="@drawable/ic_search"
         android:title="@string/menu_search"/>
 
     <item
         android:id="@+id/action_storage"
         android:enabled="true"
-        android:icon="@drawable/storage_icon"
+        android:icon="@drawable/ic_storage"
         android:title="@string/menu_storage"/>
 
 </menu>
