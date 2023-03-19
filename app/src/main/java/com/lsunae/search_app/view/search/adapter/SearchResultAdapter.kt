@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.lsunae.search_app.data.model.ImageData
+import com.lsunae.search_app.data.model.image.ImageData
 import com.lsunae.search_app.databinding.ItemImageBinding
 import com.lsunae.search_app.util.glideImageSet
 

@@ -1,7 +1,7 @@
 package com.lsunae.search_app.data.repository
 
 import com.lsunae.search_app.api.ImageSearchService
-import com.lsunae.search_app.data.model.ImageSearchResponse
+import com.lsunae.search_app.data.model.image.ImageSearchResponse
 import retrofit2.Response
 import javax.inject.Inject
 

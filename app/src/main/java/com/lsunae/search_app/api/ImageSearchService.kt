@@ -1,6 +1,6 @@
 package com.lsunae.search_app.api
 
-import com.lsunae.search_app.data.model.ImageSearchResponse
+import com.lsunae.search_app.data.model.image.ImageSearchResponse
 import com.lsunae.search_app.util.Constants
 import retrofit2.Response
 import retrofit2.http.GET
