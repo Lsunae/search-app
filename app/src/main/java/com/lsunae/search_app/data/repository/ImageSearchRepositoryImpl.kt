@@ -8,7 +8,6 @@ import javax.inject.Inject
 class ImageSearchRepositoryImpl @Inject constructor(private val api: ImageSearchService) :
     ImageSearchRepository {
     override suspend fun searchImage(query: String): Response<ImageSearchResponse> {
-        println("respository_query_ $query")
         return api.searchImage(query = query, page = 1, size = 5)
     }
 }
