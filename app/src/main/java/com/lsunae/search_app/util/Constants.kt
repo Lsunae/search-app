@@ -6,5 +6,8 @@ class Constants {
     companion object {
         const val BASE_URL = "https://dapi.kakao.com"
         const val AUTH_HEADER = "KakaoAK $REST_API_KEY"
+
+        const val IMAGE = "image"
+        const val VIDEO = "video"
     }
 }
