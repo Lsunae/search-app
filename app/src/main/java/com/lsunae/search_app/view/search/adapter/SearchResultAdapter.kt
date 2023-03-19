@@ -4,12 +4,19 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.lsunae.search_app.data.model.ImageData
 import com.lsunae.search_app.databinding.ItemImageBinding
+import com.lsunae.search_app.util.glideImageSet
 
 class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var context: Context
-    private var imageItems = mutableListOf<String>()
+    private var imageList = mutableListOf<ImageData>()
 
+    fun addData(items: List<ImageData>) {
+        imageList.clear()
+        imageList.addAll(items)
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         this.context = parent.context
         return ImageHolder(
@@ -22,7 +29,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return imageItems.size
+        return imageList.size
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -32,7 +39,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private fun settingPosition(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ImageHolder -> {
-                holder.bind(imageItems[position], position)
+                holder.bind(imageList[position], position)
             }
         }
     }
@@ -40,8 +47,10 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     inner class ImageHolder(private val binding: ItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(image: String, position: Int) {
-
+        fun bind(item: ImageData, position: Int) {
+            binding.apply {
+                item.thumbnail_url?.let { ivImage.glideImageSet(it) }
+            }
         }
     }
 }

@@ -7,7 +7,9 @@ import com.lsunae.search_app.util.MenuType
 import com.lsunae.search_app.view.base.BaseActivity
 import com.lsunae.search_app.view.search.SearchFragment
 import com.lsunae.search_app.view.storage.StorageFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var searchFragment: SearchFragment? = null
     private var storageFragment: StorageFragment? = null

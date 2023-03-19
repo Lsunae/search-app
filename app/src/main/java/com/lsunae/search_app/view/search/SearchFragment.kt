@@ -2,11 +2,14 @@ package com.lsunae.search_app.view.search
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lsunae.search_app.R
 import com.lsunae.search_app.databinding.FragmentSearchBinding
 import com.lsunae.search_app.util.OnSingleClickListener
+import com.lsunae.search_app.util.hideKeyboard
 import com.lsunae.search_app.view.base.BaseFragment
 import com.lsunae.search_app.view.search.adapter.SearchResultAdapter
 import com.lsunae.search_app.viewmodel.SearchViewModel
@@ -22,6 +25,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
         setAdapter()
         setListener()
+        setViewModel()
     }
 
     private fun setListener() {
@@ -29,6 +33,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             ivSearch.setOnClickListener(object : OnSingleClickListener() {
                 override fun onSingleClick(v: View) {
                     val searchText = etSearch.text.toString()
+                    viewModel.searchImage(searchText)
+                    etSearch.hideKeyboard()
                 }
             })
         }
@@ -37,8 +43,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun setAdapter() {
         searchResultAdapter = SearchResultAdapter()
         binding.rvSearchResult.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = searchResultAdapter
+        }
+    }
+
+    private fun setViewModel() {
+        viewModel.imageList.observe(viewLifecycleOwner) {
+            if (it.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                searchResultAdapter.addData(it)
+            }
         }
     }
 }
