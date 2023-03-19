@@ -33,7 +33,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             ivSearch.setOnClickListener(object : OnSingleClickListener() {
                 override fun onSingleClick(v: View) {
                     val searchText = etSearch.text.toString()
-                    viewModel.searchImage(searchText)
+                    viewModel.apply {
+                        searchImage(searchText)
+                        searchVideo(searchText)
+                    }
                     etSearch.hideKeyboard()
                 }
             })
@@ -49,11 +52,24 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     }
 
     private fun setViewModel() {
-        viewModel.imageList.observe(viewLifecycleOwner) {
-            if (it.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
-            } else {
+        viewModel.apply {
+            /*
+            imageList.observe(viewLifecycleOwner) {
+                if (it.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                } else {
                 searchResultAdapter.addData(it)
+                }
+            }
+
+             */
+
+            resultList.observe(viewLifecycleOwner) {
+                if (it.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    searchResultAdapter.addData(it)
+                }
             }
         }
     }

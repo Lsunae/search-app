@@ -4,19 +4,20 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.lsunae.search_app.data.model.image.ImageData
+import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
 import com.lsunae.search_app.util.glideImageSet
 
 class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var context: Context
-    private var imageList = mutableListOf<ImageData>()
+    private var imageList = mutableListOf<SearchResultData>()
 
-    fun addData(items: List<ImageData>) {
+    fun addData(items: List<SearchResultData>) {
         imageList.clear()
         imageList.addAll(items)
         notifyDataSetChanged()
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         this.context = parent.context
         return ImageHolder(
@@ -47,9 +48,9 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     inner class ImageHolder(private val binding: ItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ImageData, position: Int) {
+        fun bind(item: SearchResultData, position: Int) {
             binding.apply {
-                item.thumbnail_url?.let { ivImage.glideImageSet(it) }
+                item.thumbnail?.let { ivImage.glideImageSet(it) }
             }
         }
     }
