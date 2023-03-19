@@ -1,6 +1,7 @@
 package com.lsunae.search_app.di
 
 import com.lsunae.search_app.api.ImageSearchService
+import com.lsunae.search_app.api.VideoSearchService
 import com.lsunae.search_app.util.Constants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -37,5 +38,13 @@ class NetworkModule {
         retrofit: Retrofit
     ): ImageSearchService {
         return retrofit.create(ImageSearchService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVideoSearchService(
+        retrofit: Retrofit
+    ): VideoSearchService {
+        return retrofit.create(VideoSearchService::class.java)
     }
 }
