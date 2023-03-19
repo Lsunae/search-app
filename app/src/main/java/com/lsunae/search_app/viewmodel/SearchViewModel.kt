@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lsunae.search_app.data.model.image.ImageData
-import com.lsunae.search_app.data.repository.ImageSearchRepository
+import com.lsunae.search_app.data.repository.image.ImageSearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

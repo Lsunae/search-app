@@ -1,4 +1,4 @@
-package com.lsunae.search_app.data.repository
+package com.lsunae.search_app.data.repository.image
 
 import com.lsunae.search_app.data.model.image.ImageSearchResponse
 import retrofit2.Response

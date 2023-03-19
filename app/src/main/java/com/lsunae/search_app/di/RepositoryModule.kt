@@ -1,8 +1,8 @@
 package com.lsunae.search_app.di
 
 import com.lsunae.search_app.api.ImageSearchService
-import com.lsunae.search_app.data.repository.ImageSearchRepository
-import com.lsunae.search_app.data.repository.ImageSearchRepositoryImpl
+import com.lsunae.search_app.data.repository.image.ImageSearchRepository
+import com.lsunae.search_app.data.repository.image.ImageSearchRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
