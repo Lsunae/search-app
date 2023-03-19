@@ -1,6 +1,7 @@
 package com.lsunae.search_app.data.model.image
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 data class ImageData(
     @SerializedName("collection")
@@ -18,5 +19,5 @@ data class ImageData(
     @SerializedName("doc_url")
     val doc_url: String?,
     @SerializedName("datetime")
-    val datetime: String?
+    val datetime: Date?
 )
