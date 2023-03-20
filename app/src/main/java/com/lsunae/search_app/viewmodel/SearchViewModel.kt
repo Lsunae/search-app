@@ -4,14 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lsunae.search_app.data.model.MetaData
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.data.model.image.ImageData
 import com.lsunae.search_app.data.model.video.VideoData
 import com.lsunae.search_app.data.repository.image.ImageSearchRepository
 import com.lsunae.search_app.data.repository.video.VideoSearchRepository
 import com.lsunae.search_app.util.Constants
+import com.lsunae.search_app.util.Constants.Companion.RECENCY
+import com.lsunae.search_app.util.ImageDateComparator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,21 +36,25 @@ class SearchViewModel @Inject constructor(
     private var isImageLoading = false
     private var isVideoLoading = false
 
+    var totalCount = MutableLiveData<Int>()
+
+    private var resultData = mutableListOf<SearchResultData>()
     private val _resultList = MutableLiveData<List<SearchResultData>?>()
     val resultList: LiveData<List<SearchResultData>?> get() = _resultList
-    var resultData = mutableListOf<SearchResultData>()
 
-    val imageTotalCount = MutableLiveData<Int?>()
-    val videoTotalCount = MutableLiveData<Int?>()
+    private val _imageMetadata = MutableLiveData<MetaData?>()
+    val imageMetadata: LiveData<MetaData?> get() = _imageMetadata
 
-    fun searchImage(query: String) {
+    private val _videoMetadata = MutableLiveData<MetaData?>()
+    val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
+
+    fun searchImage(query: String, page: Int) {
         viewModelScope.launch {
             isImageLoading = false
-            val response = imageRepository.searchImage(query)
+            val response = imageRepository.searchImage(query, page, RECENCY)
             if (response.isSuccessful) {
-                imageTotalCount.value = response.body()?.metaData?.totalCount
+                _imageMetadata.value = response.body()?.metaData
                 _imageList.value = response.body()?.documents
-
                 _imageList.value?.forEach {
                     val image = SearchResultData(
                         thumbnail = it.thumbnail_url,
@@ -61,14 +69,13 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun searchVideo(query: String) {
+    fun searchVideo(query: String, page: Int) {
         viewModelScope.launch {
             isVideoLoading = false
-            val response = videoRepository.searchVideo(query)
+            val response = videoRepository.searchVideo(query, page, RECENCY)
             if (response.isSuccessful) {
-                videoTotalCount.value = response.body()?.metaData?.totalCount
+                _videoMetadata.value = response.body()?.metaData
                 _videoList.value = response.body()?.documents
-
                 _videoList.value?.forEach {
                     val image = SearchResultData(
                         thumbnail = it.thumbnail,
@@ -83,9 +90,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun searchResultData() {
+    private fun searchResultData() {
         if (isImageLoading && isVideoLoading) {
+            Collections.sort(resultData, ImageDateComparator().reversed())
             _resultList.value = resultData
+            totalCount.value = resultData.size
+            resultData.clear()
         }
     }
 }

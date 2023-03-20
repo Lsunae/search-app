@@ -12,6 +12,7 @@ interface VideoSearchService {
     suspend fun searchVideo(
         @Header("Authorization") apiKey: String = Constants.AUTH_HEADER,
         @Query("query") query: String,
+        @Query("sort") sort: String,
         @Query("page") page: Int,
         @Query("size") size: Int
     ): Response<VideoSearchResponse>

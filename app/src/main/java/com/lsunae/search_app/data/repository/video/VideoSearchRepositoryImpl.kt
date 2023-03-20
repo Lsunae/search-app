@@ -7,7 +7,11 @@ import javax.inject.Inject
 
 class VideoSearchRepositoryImpl @Inject constructor(private val api: VideoSearchService) :
     VideoSearchRepository {
-    override suspend fun searchVideo(query: String): Response<VideoSearchResponse> {
-        return api.searchVideo(query = query, page = 1, size = 5)
+    override suspend fun searchVideo(
+        query: String,
+        page: Int,
+        sort: String
+    ): Response<VideoSearchResponse> {
+        return api.searchVideo(query = query, page = page, size = 5, sort = sort)
     }
 }
