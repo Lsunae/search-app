@@ -48,13 +48,24 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
+    var keyword = ""
+
     fun searchImage(query: String, page: Int) {
+        if (keyword != query) {
+            resultData.clear()
+        }
+        keyword = query
+
+        println("image_page_ $page")
         viewModelScope.launch {
+            println("test_imageList_size_ ${_imageList.value?.size}")
             isImageLoading = false
             val response = imageRepository.searchImage(query, page, RECENCY)
             if (response.isSuccessful) {
                 _imageMetadata.value = response.body()?.metaData
                 _imageList.value = response.body()?.documents
+                println("test_image_isEnd_ ${response.body()?.metaData?.isEnd}")
+
                 _imageList.value?.forEach {
                     val image = SearchResultData(
                         thumbnail = it.thumbnail_url,
@@ -63,6 +74,7 @@ class SearchViewModel @Inject constructor(
                     )
                     resultData.add(image)
                 }
+                println("test_imageList_size_2_ ${_imageList.value?.size}")
             }
             isImageLoading = true
             searchResultData()
@@ -70,12 +82,16 @@ class SearchViewModel @Inject constructor(
     }
 
     fun searchVideo(query: String, page: Int) {
+        println("video_page_ $page")
         viewModelScope.launch {
+            println("test_videoList_size_ ${_videoList.value?.size}")
             isVideoLoading = false
             val response = videoRepository.searchVideo(query, page, RECENCY)
             if (response.isSuccessful) {
                 _videoMetadata.value = response.body()?.metaData
                 _videoList.value = response.body()?.documents
+                println("test_video_isEnd_ ${response.body()?.metaData?.isEnd}")
+
                 _videoList.value?.forEach {
                     val image = SearchResultData(
                         thumbnail = it.thumbnail,
@@ -84,6 +100,7 @@ class SearchViewModel @Inject constructor(
                     )
                     resultData.add(image)
                 }
+                println("test_videoList_size_2_ ${_videoList.value?.size}")
             }
             isVideoLoading = true
             searchResultData()
@@ -92,8 +109,12 @@ class SearchViewModel @Inject constructor(
 
     private fun searchResultData() {
         if (isImageLoading && isVideoLoading) {
+            println("test_resultData_ ${resultData.size}")
+            println("test_resultList_ ${_resultList.value?.size}")
             Collections.sort(resultData, ImageDateComparator().reversed())
             _resultList.value = resultData
+            println("test_resultData_2_ ${resultData.size}")
+            println("test_resultList_2_ ${_resultList.value?.size}")
             totalCount.value = resultData.size
             resultData.clear()
         }

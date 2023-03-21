@@ -1,53 +1,51 @@
-package com.lsunae.search_app.view.search.adapter
+package com.lsunae.search_app.view.storage.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
+import com.lsunae.search_app.util.OnSingleClickListener
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.glideImageSet
-import com.lsunae.search_app.view.search.SearchFragment
+import com.lsunae.search_app.view.storage.StorageFragment
 import java.lang.ref.WeakReference
 
-class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var context: Context
-    private var imageList = mutableListOf<SearchResultData>()
-    lateinit var searchFragment: WeakReference<SearchFragment>
-    private lateinit var onItemClickListener: OnItemClickListener
+    private var items = mutableListOf<SearchResultData>()
+    lateinit var storageFragment: WeakReference<StorageFragment>
+    private lateinit var onFavoriteClickListener: OnFavoriteClickListener
 
-    interface OnItemClickListener {
-        fun onItemClick(item: SearchResultData)
+    interface OnFavoriteClickListener {
+        fun onFavoriteClick(item: SearchResultData, position: Int, isChecked: Boolean)
     }
 
-    fun setOnItemClickListener(listener: OnItemClickListener) {
-        onItemClickListener = listener
+    fun setOnFavoriteClickListener(listener: OnFavoriteClickListener) {
+        onFavoriteClickListener = listener
     }
 
-    fun addNextData(items: List<SearchResultData>) {
-        val positionStart = imageList.count() + 1
-        imageList.addAll(items)
-        notifyItemRangeChanged(positionStart, imageList.size)
-        println("nextAddData_positionStart_ $positionStart")
-        println("nextAddData_imageList_ $imageList")
-    }
-
-    fun addData(items: List<SearchResultData>) {
-        imageList.clear()
-        imageList.addAll(items)
+    fun addItems(itemList: ArrayList<SearchResultData>) {
+        items.clear()
+        if (!itemList.isNullOrEmpty()) items.addAll(itemList)
         notifyDataSetChanged()
+    }
+
+    fun notifyRemovedItem(position: Int) {
+        items.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         val requestManager: RequestManager
-        if (searchFragment.get() != null && !searchFragment.get()!!.isDetached) {
-            requestManager = Glide.with(searchFragment.get()!!)
-            if (holder is ImageHolder) {
+        if (storageFragment.get() != null && !storageFragment.get()!!.isDetached) {
+            requestManager = Glide.with(storageFragment.get()!!)
+            if (holder is Holder) {
                 holder.clearRequestManager(requestManager)
             }
         }
@@ -55,7 +53,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         this.context = parent.context
-        return ImageHolder(
+        return Holder(
             ItemImageBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
@@ -65,7 +63,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return imageList.size
+        return items.size
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -74,13 +72,13 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun settingPosition(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ImageHolder -> {
-                holder.bind(imageList[position], position)
+            is Holder -> {
+                holder.bind(items[position], position)
             }
         }
     }
 
-    inner class ImageHolder(private val binding: ItemImageBinding) :
+    inner class Holder(private val binding: ItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: SearchResultData, position: Int) {
@@ -88,9 +86,16 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 item.thumbnail?.let { ivImage.glideImageSet(it) }
                 dateTime = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
 
-                cbFavorite.setOnClickListener {
-                    onItemClickListener.onItemClick(item)
-                }
+                cbFavorite.isChecked = true
+                cbFavorite.setOnClickListener(object : OnSingleClickListener() {
+                    override fun onSingleClick(v: View) {
+                        onFavoriteClickListener.onFavoriteClick(
+                            item,
+                            position,
+                            cbFavorite.isChecked
+                        )
+                    }
+                })
             }
         }
 

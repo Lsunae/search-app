@@ -8,13 +8,17 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lsunae.search_app.R
+import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.FragmentSearchBinding
 import com.lsunae.search_app.util.OnSingleClickListener
+import com.lsunae.search_app.util.SingletonObject
+import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.hideKeyboard
 import com.lsunae.search_app.view.base.BaseFragment
 import com.lsunae.search_app.view.search.adapter.SearchResultAdapter
 import com.lsunae.search_app.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
@@ -30,6 +34,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         super.onViewCreated(view, savedInstanceState)
 
         setAdapter()
+        searchResultAdapter.searchFragment = WeakReference(this)
         setListener()
         setViewModel()
     }
@@ -49,10 +54,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
                     val lastVisibleItemPosition =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
-                    val itemTotalCount = recyclerView.adapter?.itemCount ?:0
-                    val resultListCount = viewModel.totalCount.value ?:0
+                    val itemTotalCount = recyclerView.adapter?.itemCount ?: 0
+                    val resultListCount = viewModel.totalCount.value ?: 0
+                    println("f_itemTotalCount_ $imagePageIsEnd")
+                    println("f_resultListCount_ $imagePageIsEnd")
 
                     if (itemTotalCount <= resultListCount && lastVisibleItemPosition + 1 == itemTotalCount) {
+                        println("f_imagePageIsEnd_ $imagePageIsEnd")
+                        println("f_videoPageIsEnd_ $videoPageIsEnd")
                         if (!imagePageIsEnd) imagePage += 1
                         if (!videoPageIsEnd) videoPage += 1
                         isNextPage = true
@@ -61,6 +70,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 }
             })
         }
+
+        searchResultAdapter.setOnItemClickListener(object :
+            SearchResultAdapter.OnItemClickListener {
+            override fun onItemClick(item: SearchResultData) {
+                SingletonObject.addFavoriteImage(item)
+                println("search_favoriteList_ ${SingletonObject.favoriteList}")
+                Utils.saveFavoriteSharedPreferences(requireContext())
+            }
+        })
     }
 
     private fun setAdapter() {
@@ -82,12 +100,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun setViewModel() {
         viewModel.apply {
-            imageMetadata.observe(viewLifecycleOwner) { imagePageIsEnd = it?.isEnd ?:true }
-            videoMetadata.observe(viewLifecycleOwner) { videoPageIsEnd = it?.isEnd ?:true }
+            imageMetadata.observe(viewLifecycleOwner) { imagePageIsEnd = it?.isEnd ?: true }
+            videoMetadata.observe(viewLifecycleOwner) { videoPageIsEnd = it?.isEnd ?: true }
             resultList.observe(viewLifecycleOwner) {
                 if (it.isNullOrEmpty()) {
                     Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
+                    println("isNextPage_ $isNextPage")
                     if (isNextPage) searchResultAdapter.addNextData(it)
                     else searchResultAdapter.addData(it)
                 }
