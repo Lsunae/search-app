@@ -44,6 +44,7 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
                     storageAdapter.notifyRemovedItem(position)
                 }
                 Utils.saveFavoriteSharedPreferences(requireContext())
+                storageAdapter.notifyChange()
             }
         })
     }

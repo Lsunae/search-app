@@ -35,6 +35,10 @@ class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun notifyChange() {
+        notifyDataSetChanged()
+    }
+
     fun notifyRemovedItem(position: Int) {
         items.removeAt(position)
         notifyItemRemoved(position)
