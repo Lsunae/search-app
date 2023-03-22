@@ -5,12 +5,12 @@
         android:id="@+id/action_search"
         android:enabled="true"
         android:icon="@drawable/ic_search"
-        android:title="@string/menu_search"/>
+        android:title="@string/search"/>
 
     <item
         android:id="@+id/action_storage"
         android:enabled="true"
         android:icon="@drawable/ic_favorite"
-        android:title="@string/menu_storage"/>
+        android:title="@string/storage"/>
 
 </menu>

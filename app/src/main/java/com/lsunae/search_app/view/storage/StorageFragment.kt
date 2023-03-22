@@ -20,6 +20,7 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupView()
         setAdapter()
         storageAdapter.storageFragment = WeakReference(this)
         setListener()
@@ -29,6 +30,12 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
         super.onResume()
 
         loadStorage()
+    }
+
+    private fun setupView() {
+        binding.apply {
+            incActionbar.tvTitle.text = "보관함"
+        }
     }
 
     private fun setListener() {

@@ -33,10 +33,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupView()
         setAdapter()
         searchResultAdapter.searchFragment = WeakReference(this)
         setListener()
         setViewModel()
+    }
+
+    private fun setupView() {
+        binding.apply {
+            incActionbar.tvTitle.text = "검색"
+        }
     }
 
     private fun setListener() {
