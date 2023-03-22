@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
 import com.lsunae.search_app.util.OnSingleClickListener
@@ -44,17 +42,6 @@ class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyItemRemoved(position)
     }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        super.onViewRecycled(holder)
-        val requestManager: RequestManager
-        if (storageFragment.get() != null && !storageFragment.get()!!.isDetached) {
-            requestManager = Glide.with(storageFragment.get()!!)
-            if (holder is Holder) {
-                holder.clearRequestManager(requestManager)
-            }
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         this.context = parent.context
         return Holder(
@@ -68,6 +55,10 @@ class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -100,14 +91,6 @@ class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                         )
                     }
                 })
-            }
-        }
-
-        fun clearRequestManager(requestManager: RequestManager) {
-            binding.apply {
-                requestManager.clear(ivImage)
-                requestManager.clear(tvDateTime)
-                requestManager.clear(cbFavorite)
             }
         }
     }

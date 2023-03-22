@@ -3,10 +3,7 @@ package com.lsunae.search_app.view.search.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
 import com.lsunae.search_app.util.Utils
@@ -32,25 +29,12 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val positionStart = imageList.count() + 1
         imageList.addAll(items)
         notifyItemRangeChanged(positionStart, imageList.size)
-        println("nextAddData_positionStart_ $positionStart")
-        println("nextAddData_imageList_ $imageList")
     }
 
     fun addData(items: List<SearchResultData>) {
         imageList.clear()
         imageList.addAll(items)
         notifyDataSetChanged()
-    }
-
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        super.onViewRecycled(holder)
-        val requestManager: RequestManager
-        if (searchFragment.get() != null && !searchFragment.get()!!.isDetached) {
-            requestManager = Glide.with(searchFragment.get()!!)
-            if (holder is ImageHolder) {
-                holder.clearRequestManager(requestManager)
-            }
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -80,6 +64,10 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     inner class ImageHolder(private val binding: ItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -91,14 +79,6 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 cbFavorite.setOnClickListener {
                     onItemClickListener.onItemClick(item)
                 }
-            }
-        }
-
-        fun clearRequestManager(requestManager: RequestManager) {
-            binding.apply {
-                requestManager.clear(ivImage)
-                requestManager.clear(tvDateTime)
-                requestManager.clear(cbFavorite)
             }
         }
     }
