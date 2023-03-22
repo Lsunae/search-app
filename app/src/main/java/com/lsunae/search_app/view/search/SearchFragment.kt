@@ -62,11 +62,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     val lastVisibleItemPosition =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
                     val itemTotalCount = recyclerView.adapter?.itemCount ?: 0
-                    val resultListCount = viewModel.totalCount.value ?: 0
-                    println("f_itemTotalCount_ $imagePageIsEnd")
-                    println("f_resultListCount_ $imagePageIsEnd")
 
-                    if (itemTotalCount <= resultListCount && lastVisibleItemPosition + 1 == itemTotalCount) {
+                    if (lastVisibleItemPosition + 1 == itemTotalCount) {
                         println("f_imagePageIsEnd_ $imagePageIsEnd")
                         println("f_videoPageIsEnd_ $videoPageIsEnd")
                         if (!imagePageIsEnd) imagePage += 1
@@ -82,7 +79,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             SearchResultAdapter.OnItemClickListener {
             override fun onItemClick(item: SearchResultData) {
                 SingletonObject.addFavoriteImage(item)
-                println("search_favoriteList_ ${SingletonObject.favoriteList}")
                 Utils.saveFavoriteSharedPreferences(requireContext())
             }
         })
@@ -114,7 +110,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     println("isNextPage_ $isNextPage")
-                    if (isNextPage) searchResultAdapter.addNextData(it)
+                    if (isNextPage && !it.isNullOrEmpty()) searchResultAdapter.addNextData(it)
                     else searchResultAdapter.addData(it)
                 }
             }

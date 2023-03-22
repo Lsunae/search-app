@@ -1,5 +1,6 @@
 package com.lsunae.search_app.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,13 +31,8 @@ class SearchViewModel @Inject constructor(
     private val _videoList = MutableLiveData<List<VideoData>?>()
     val videoList: LiveData<List<VideoData>?> get() = _videoList
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
-
     private var isImageLoading = false
     private var isVideoLoading = false
-
-    var totalCount = MutableLiveData<Int>()
 
     private var resultData = mutableListOf<SearchResultData>()
     private val _resultList = MutableLiveData<List<SearchResultData>?>()
@@ -75,6 +71,8 @@ class SearchViewModel @Inject constructor(
                     resultData.add(image)
                 }
                 println("test_imageList_size_2_ ${_imageList.value?.size}")
+            } else {
+                Log.e("[${javaClass.name}] Error ", "code: ${response.code()}, message: ${response.message()}")
             }
             isImageLoading = true
             searchResultData()
@@ -101,6 +99,8 @@ class SearchViewModel @Inject constructor(
                     resultData.add(image)
                 }
                 println("test_videoList_size_2_ ${_videoList.value?.size}")
+            } else {
+                Log.e("[${javaClass.name}] Error ", "code: ${response.code()}, message: ${response.message()}")
             }
             isVideoLoading = true
             searchResultData()
@@ -115,7 +115,6 @@ class SearchViewModel @Inject constructor(
             _resultList.value = resultData
             println("test_resultData_2_ ${resultData.size}")
             println("test_resultList_2_ ${_resultList.value?.size}")
-            totalCount.value = resultData.size
             resultData.clear()
         }
     }
