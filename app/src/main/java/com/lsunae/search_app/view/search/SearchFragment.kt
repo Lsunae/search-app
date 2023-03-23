@@ -29,7 +29,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private var isNextPage = false
     private var imageIsEnd = false
     private var videoIsEnd = false
-    private var isReset = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,10 +46,19 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         }
     }
 
+    private fun setAdapter() {
+        searchResultAdapter = SearchResultAdapter()
+        binding.rvSearchResult.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            adapter = searchResultAdapter
+        }
+    }
+
     private fun setListener() {
         binding.apply {
             ivSearch.setOnClickListener(object : OnSingleClickListener() {
                 override fun onSingleClick(v: View) {
+                    resetData()
                     searchKeyword()
                     etSearch.hideKeyboard()
                 }
@@ -87,14 +95,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         })
     }
 
-    private fun setAdapter() {
-        searchResultAdapter = SearchResultAdapter()
-        binding.rvSearchResult.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = searchResultAdapter
-        }
-    }
-
     private fun searchKeyword() {
         viewModel.apply {
             val keyword = binding.etSearch.text.toString()
@@ -122,10 +122,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     ).show()
                 } else {
                     println("isNextPage_ $isNextPage")
-                    if (isReset && !isNextPage) {
-                        if (isReset) binding.rvSearchResult.removeAllViews()
-                        searchResultAdapter.addData(it)
-                    } else searchResultAdapter.addNextData(it)
+                    if (isNextPage) searchResultAdapter.addNextData(it)
+                    else searchResultAdapter.addData(it)
                 }
             }
         }

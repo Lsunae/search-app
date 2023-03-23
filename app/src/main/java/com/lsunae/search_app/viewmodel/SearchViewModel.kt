@@ -27,13 +27,7 @@ class SearchViewModel @Inject constructor(
 ) :
     ViewModel() {
     private val _imageList = MutableLiveData<List<ImageData>?>()
-    val imageList: LiveData<List<ImageData>?> get() = _imageList
-
     private val _videoList = MutableLiveData<List<VideoData>?>()
-    val videoList: LiveData<List<VideoData>?> get() = _videoList
-
-    private var isImageLoading = false
-    private var isVideoLoading = false
 
     private var resultData = mutableListOf<SearchResultData>()
     private val _resultList = MutableLiveData<List<SearchResultData>?>()
@@ -45,9 +39,8 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
-    val isNewKeyword = MutableLiveData<Boolean>()
-
-    var keyword = ""
+    private var isImageLoading = false
+    private var isVideoLoading = false
 
     fun searchKeyword(
         query: String,
@@ -56,15 +49,6 @@ class SearchViewModel @Inject constructor(
         imageIsEnd: Boolean,
         videoIsEnd: Boolean
     ) {
-        println("vm_keyword_ $keyword")
-        println("vm_query_ $query")
-        if (keyword != query) {
-            println("vm_keyword_query_ ")
-            isNewKeyword.value = true
-            resultData.clear()
-        } else isNewKeyword.value = false
-        keyword = query
-
         viewModelScope.launch {
             isImageLoading = false
             isVideoLoading = false
@@ -117,7 +101,7 @@ class SearchViewModel @Inject constructor(
                         }
                     } else {
                         Log.e(
-                            "[${javaClass.name}] Video Search  Error ",
+                            "[${javaClass.name}] Video Search Error ",
                             "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${videoResponse.errorBody()}"
                         )
                     }
