@@ -12,7 +12,9 @@ import com.lsunae.search_app.data.model.video.VideoData
 import com.lsunae.search_app.data.repository.image.ImageSearchRepository
 import com.lsunae.search_app.data.repository.video.VideoSearchRepository
 import com.lsunae.search_app.util.Constants
+import com.lsunae.search_app.util.Constants.Companion.IMAGE_MAX_PAGE
 import com.lsunae.search_app.util.Constants.Companion.RECENCY
+import com.lsunae.search_app.util.Constants.Companion.VIDEO_MAX_PAGE
 import com.lsunae.search_app.util.ImageDateComparator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +56,7 @@ class SearchViewModel @Inject constructor(
             isVideoLoading = false
 
             try {
-                if (!imageIsEnd) {
+                if (!imageIsEnd && imagePage <= IMAGE_MAX_PAGE) {
                     val imageResponse = imageRepository.searchImage(
                         query,
                         imagePage,
@@ -77,13 +79,13 @@ class SearchViewModel @Inject constructor(
                     } else {
                         Log.e(
                             "[${javaClass.name}] Image Search Error ",
-                            "code: ${imageResponse.code()}, message: ${imageResponse.message()}"
+                            "code: ${imageResponse.code()}, message: ${imageResponse.errorBody()?.string()}"
                         )
                     }
                     isImageLoading = true
                 } else Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
 
-                if (!videoIsEnd) {
+                if (!videoIsEnd && videoPage <= VIDEO_MAX_PAGE) {
                     val videoResponse = videoRepository.searchVideo(query, videoPage, RECENCY)
                     if (videoResponse.isSuccessful) {
                         println("vm_video_meta_ ${videoResponse.body()?.metaData}")
@@ -102,7 +104,7 @@ class SearchViewModel @Inject constructor(
                     } else {
                         Log.e(
                             "[${javaClass.name}] Video Search Error ",
-                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${videoResponse.errorBody()}"
+                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${videoResponse.errorBody()?.string()}"
                         )
                     }
                     isVideoLoading = true
@@ -115,10 +117,8 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun searchResultData() {
-        if (isImageLoading && isVideoLoading) {
-            Collections.sort(resultData, ImageDateComparator().reversed())
-            _resultList.value = resultData
-            resultData.clear()
-        }
+        Collections.sort(resultData, ImageDateComparator().reversed())
+        _resultList.value = resultData
+        resultData.clear()
     }
 }

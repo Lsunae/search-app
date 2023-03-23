@@ -10,7 +10,9 @@ class Constants {
         const val IMAGE = "image"
         const val VIDEO = "video"
 
-        const val RECENCY = "recency"   // 최신순
+        const val RECENCY = "recency"
         const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
+        const val IMAGE_MAX_PAGE = 50
+        const val VIDEO_MAX_PAGE = 15
     }
 }
