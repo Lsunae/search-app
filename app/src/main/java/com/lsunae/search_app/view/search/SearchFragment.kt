@@ -27,8 +27,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private var imagePage = 1
     private var videoPage = 1
     private var isNextPage = false
-    private var imagePageIsEnd = false
-    private var videoPageIsEnd = false
+    private var imageIsEnd = false
+    private var videoIsEnd = false
+    private var isReset = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,7 +43,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun setupView() {
         binding.apply {
-            incActionbar.tvTitle.text = "검색"
+            incActionbar.tvTitle.text = getString(R.string.search)
         }
     }
 
@@ -64,11 +65,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     val itemTotalCount = recyclerView.adapter?.itemCount ?: 0
 
                     if (lastVisibleItemPosition + 1 == itemTotalCount) {
-                        println("f_imagePageIsEnd_ $imagePageIsEnd")
-                        println("f_videoPageIsEnd_ $videoPageIsEnd")
-                        if (!imagePageIsEnd) imagePage += 1
-                        if (!videoPageIsEnd) videoPage += 1
-                        isNextPage = true
+                        println("f_imageIsEnd_ $imageIsEnd")
+                        println("f_videoIsEnd_ $videoIsEnd")
+                        if (!imageIsEnd || !videoIsEnd) {
+                            isNextPage = true
+                            if (!imageIsEnd) imagePage += 1
+                            if (!videoIsEnd) videoPage += 1
+                        }
                         searchKeyword()
                     }
                 }
@@ -95,25 +98,44 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun searchKeyword() {
         viewModel.apply {
             val keyword = binding.etSearch.text.toString()
-            if (!imagePageIsEnd) searchImage(keyword, imagePage)
-            if (!videoPageIsEnd) searchVideo(keyword, videoPage)
-            if (imagePageIsEnd && videoPageIsEnd) isNextPage = false
+            searchKeyword(keyword, imagePage, videoPage, imageIsEnd, videoIsEnd)
+            if (imageIsEnd && videoIsEnd) isNextPage = false
         }
     }
 
     private fun setViewModel() {
         viewModel.apply {
-            imageMetadata.observe(viewLifecycleOwner) { imagePageIsEnd = it?.isEnd ?: true }
-            videoMetadata.observe(viewLifecycleOwner) { videoPageIsEnd = it?.isEnd ?: true }
+            imageMetadata.observe(viewLifecycleOwner) {
+                println("frag_image_isEnd_ ${it?.isEnd}")
+                imageIsEnd = it?.isEnd ?: true
+            }
+            videoMetadata.observe(viewLifecycleOwner) {
+                println("frag_video_isEnd_ ${it?.isEnd}")
+                videoIsEnd = it?.isEnd ?: true
+            }
             resultList.observe(viewLifecycleOwner) {
                 if (it.isNullOrEmpty()) {
-                    Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.search_result_not_found),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     println("isNextPage_ $isNextPage")
-                    if (isNextPage && !it.isNullOrEmpty()) searchResultAdapter.addNextData(it)
-                    else searchResultAdapter.addData(it)
+                    if (isReset && !isNextPage) {
+                        if (isReset) binding.rvSearchResult.removeAllViews()
+                        searchResultAdapter.addData(it)
+                    } else searchResultAdapter.addNextData(it)
                 }
             }
         }
+    }
+
+    private fun resetData() {
+        imagePage = 1
+        videoPage = 1
+        isNextPage = false
+        imageIsEnd = false
+        videoIsEnd = false
     }
 }

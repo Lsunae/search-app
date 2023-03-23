@@ -16,6 +16,7 @@ import com.lsunae.search_app.util.Constants.Companion.RECENCY
 import com.lsunae.search_app.util.ImageDateComparator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
@@ -44,77 +45,95 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
+    val isNewKeyword = MutableLiveData<Boolean>()
+
     var keyword = ""
 
-    fun searchImage(query: String, page: Int) {
+    fun searchKeyword(
+        query: String,
+        imagePage: Int,
+        videoPage: Int,
+        imageIsEnd: Boolean,
+        videoIsEnd: Boolean
+    ) {
+        println("vm_keyword_ $keyword")
+        println("vm_query_ $query")
         if (keyword != query) {
+            println("vm_keyword_query_ ")
+            isNewKeyword.value = true
             resultData.clear()
-        }
+        } else isNewKeyword.value = false
         keyword = query
 
-        println("image_page_ $page")
         viewModelScope.launch {
-            println("test_imageList_size_ ${_imageList.value?.size}")
             isImageLoading = false
-            val response = imageRepository.searchImage(query, page, RECENCY)
-            if (response.isSuccessful) {
-                _imageMetadata.value = response.body()?.metaData
-                _imageList.value = response.body()?.documents
-                println("test_image_isEnd_ ${response.body()?.metaData?.isEnd}")
-
-                _imageList.value?.forEach {
-                    val image = SearchResultData(
-                        thumbnail = it.thumbnail_url,
-                        dateTime = it.datetime,
-                        urlType = Constants.IMAGE
-                    )
-                    resultData.add(image)
-                }
-                println("test_imageList_size_2_ ${_imageList.value?.size}")
-            } else {
-                Log.e("[${javaClass.name}] Error ", "code: ${response.code()}, message: ${response.message()}")
-            }
-            isImageLoading = true
-            searchResultData()
-        }
-    }
-
-    fun searchVideo(query: String, page: Int) {
-        println("video_page_ $page")
-        viewModelScope.launch {
-            println("test_videoList_size_ ${_videoList.value?.size}")
             isVideoLoading = false
-            val response = videoRepository.searchVideo(query, page, RECENCY)
-            if (response.isSuccessful) {
-                _videoMetadata.value = response.body()?.metaData
-                _videoList.value = response.body()?.documents
-                println("test_video_isEnd_ ${response.body()?.metaData?.isEnd}")
 
-                _videoList.value?.forEach {
-                    val image = SearchResultData(
-                        thumbnail = it.thumbnail,
-                        dateTime = it.datetime,
-                        urlType = Constants.VIDEO
+            try {
+                if (!imageIsEnd) {
+                    val imageResponse = imageRepository.searchImage(
+                        query,
+                        imagePage,
+                        RECENCY
                     )
-                    resultData.add(image)
+                    if (imageResponse.isSuccessful) {
+                        println("vm_image_meta_ ${imageResponse.body()?.metaData}")
+                        println("vm_image_isEnd_ ${imageResponse.body()?.metaData?.isEnd}")
+                        _imageMetadata.value = imageResponse.body()?.metaData
+                        _imageList.value = imageResponse.body()?.documents
+
+                        _imageList.value?.forEach {
+                            val image = SearchResultData(
+                                thumbnail = it.thumbnail_url,
+                                dateTime = it.datetime,
+                                urlType = Constants.IMAGE
+                            )
+                            resultData.add(image)
+                        }
+                    } else {
+                        Log.e(
+                            "[${javaClass.name}] Image Search Error ",
+                            "code: ${imageResponse.code()}, message: ${imageResponse.message()}"
+                        )
+                    }
+                    isImageLoading = true
+                } else Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
+
+                if (!videoIsEnd) {
+                    val videoResponse = videoRepository.searchVideo(query, videoPage, RECENCY)
+                    if (videoResponse.isSuccessful) {
+                        println("vm_video_meta_ ${videoResponse.body()?.metaData}")
+                        println("vm_video_isEnd_ ${videoResponse.body()?.metaData?.isEnd}")
+                        _videoMetadata.value = videoResponse.body()?.metaData
+                        _videoList.value = videoResponse.body()?.documents
+
+                        _videoList.value?.forEach {
+                            val image = SearchResultData(
+                                thumbnail = it.thumbnail,
+                                dateTime = it.datetime,
+                                urlType = Constants.VIDEO
+                            )
+                            resultData.add(image)
+                        }
+                    } else {
+                        Log.e(
+                            "[${javaClass.name}] Video Search  Error ",
+                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${videoResponse.errorBody()}"
+                        )
+                    }
+                    isVideoLoading = true
                 }
-                println("test_videoList_size_2_ ${_videoList.value?.size}")
-            } else {
-                Log.e("[${javaClass.name}] Error ", "code: ${response.code()}, message: ${response.message()}")
+            } catch (exception: IOException) {
+                Log.e("[${javaClass.name}] Exception ", "${exception.message}")
             }
-            isVideoLoading = true
             searchResultData()
         }
     }
 
     private fun searchResultData() {
         if (isImageLoading && isVideoLoading) {
-            println("test_resultData_ ${resultData.size}")
-            println("test_resultList_ ${_resultList.value?.size}")
             Collections.sort(resultData, ImageDateComparator().reversed())
             _resultList.value = resultData
-            println("test_resultData_2_ ${resultData.size}")
-            println("test_resultList_2_ ${_resultList.value?.size}")
             resultData.clear()
         }
     }

@@ -34,7 +34,7 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
 
     private fun setupView() {
         binding.apply {
-            incActionbar.tvTitle.text = "보관함"
+            incActionbar.tvTitle.text = getString(R.string.storage)
         }
     }
 
