@@ -43,6 +43,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setListener()
         setMetaData()
         setSearchResultList()
+        setCurrentSearchKeyword()
     }
 
     override fun onResume() {
@@ -124,7 +125,16 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             prevFavoriteList = SingletonObject.favoriteList
 
             val keyword = binding.etSearch.text.toString()
-            searchKeyword(keyword, imagePage, videoPage, imageIsEnd, videoIsEnd)
+
+            if (keyword.isEmpty() && (imagePage == 1 && videoPage == 1)) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.search_keyword_empty),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                searchKeyword(keyword, imagePage, videoPage, imageIsEnd, videoIsEnd)
+            }
             if (imageIsEnd && videoIsEnd) isNextPage = false
         }
     }
@@ -168,6 +178,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     }
                     if (isNextPage) searchResultAdapter.addNextData(it)
                     else searchResultAdapter.addData(it)
+                }
+            }
+        }
+    }
+
+    private fun setCurrentSearchKeyword() {
+        viewModel.currentKeyword.observe(viewLifecycleOwner) {
+            binding.etSearch.apply {
+                if (text.toString() != it) {
+                    setText(it.toString())
+                    setSelection(text.length)
                 }
             }
         }

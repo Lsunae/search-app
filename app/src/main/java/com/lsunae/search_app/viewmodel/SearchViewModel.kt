@@ -49,11 +49,13 @@ class SearchViewModel @Inject constructor(
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
+
+    private val _currentKeyword = MutableLiveData<String>()
+    val currentKeyword: LiveData<String> get() = _currentKeyword
+    var saveKeyword = ""
+
     private var isImageLoading = false
     private var isVideoLoading = false
-
-    private var keyword = ""
-
 
     fun searchKeyword(
         query: String,
@@ -62,7 +64,9 @@ class SearchViewModel @Inject constructor(
         imageIsEnd: Boolean,
         videoIsEnd: Boolean
     ) {
-        keyword = query
+        if ((imagePage == 1 && videoPage == 1) && _currentKeyword.value != query) {
+            saveKeyword = query
+        } else _currentKeyword.value = saveKeyword
 
         viewModelScope.launch {
             isImageLoading = true
@@ -71,7 +75,8 @@ class SearchViewModel @Inject constructor(
 
             try {
                 if (!imageIsEnd && imagePage <= IMAGE_MAX_PAGE) {
-                    val imageResponse = imageRepository.searchImage(query, imagePage, RECENCY)
+                    val imageResponse =
+                        imageRepository.searchImage(saveKeyword, imagePage, RECENCY)
                     searchImageResult(imageResponse)
                 } else {
                     isImageLoading = false
@@ -83,7 +88,8 @@ class SearchViewModel @Inject constructor(
                 }
 
                 if (!videoIsEnd && videoPage <= VIDEO_MAX_PAGE) {
-                    val videoResponse = videoRepository.searchVideo(query, videoPage, RECENCY)
+                    val videoResponse =
+                        videoRepository.searchVideo(saveKeyword, videoPage, RECENCY)
                     searchVideoResult(videoResponse)
                 } else {
                     isVideoLoading = false
