@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
+import com.lsunae.search_app.util.SingletonObject
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.glideImageSet
 import com.lsunae.search_app.view.search.SearchFragment
@@ -18,7 +19,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var onItemClickListener: OnItemClickListener
 
     interface OnItemClickListener {
-        fun onItemClick(item: SearchResultData)
+        fun onItemClick(item: SearchResultData, isChecked: Boolean)
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
@@ -34,6 +35,10 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     fun addData(items: List<SearchResultData>) {
         imageList.clear()
         imageList.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    fun notifyChange() {
         notifyDataSetChanged()
     }
 
@@ -59,7 +64,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private fun settingPosition(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ImageHolder -> {
-                holder.bind(imageList[position], position)
+                holder.bind(imageList[position])
             }
         }
     }
@@ -71,13 +76,15 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     inner class ImageHolder(private val binding: ItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: SearchResultData, position: Int) {
+        fun bind(item: SearchResultData) {
             binding.apply {
+                cbFavorite.isChecked = SingletonObject.favoriteList.contains(item)
+
                 item.thumbnail?.let { ivImage.glideImageSet(it) }
                 dateTime = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
 
                 cbFavorite.setOnClickListener {
-                    onItemClickListener.onItemClick(item)
+                    onItemClickListener.onItemClick(item, cbFavorite.isChecked)
                 }
             }
         }

@@ -61,7 +61,6 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
             isFirst = false
             Utils.loadFavoriteSharedPreferences(requireContext())
         }
-        /** desc_ 리스트 개수 비교 후 추가된 경우에 아이템 하나만 add 하도록 구현할 것 */
         storageAdapter.addItems(SingletonObject.favoriteList)
     }
 

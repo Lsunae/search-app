@@ -76,7 +76,10 @@ class SearchViewModel @Inject constructor(
                 } else {
                     isImageLoading = false
                     _isMoreNotFount.value = true
-                    Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
+                    Log.i(
+                        "[${javaClass.name}] ",
+                        "This is the last page of the image search results."
+                    )
                 }
 
                 if (!videoIsEnd && videoPage <= VIDEO_MAX_PAGE) {
@@ -85,7 +88,10 @@ class SearchViewModel @Inject constructor(
                 } else {
                     isVideoLoading = false
                     _isMoreNotFount.value = true
-                    Log.i("[${javaClass.name}] ", "동영상 검색 결과 마지막 페이지 입니다.")
+                    Log.i(
+                        "[${javaClass.name}] ",
+                        "This is the last page of the video search results."
+                    )
                 }
             } catch (exception: IOException) {
                 isImageLoading = false

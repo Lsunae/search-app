@@ -5,6 +5,7 @@
     <string name="storage">보관함</string>
     <string name="image_last_page">이미지 검색 결과 마지막 페이지 입니다.</string>
     <string name="video_last_page">동영상 검색 결과 마지막 페이지 입니다.</string>
+    <string name="search_keyword_empty">검색어를 입력해주세요.</string>
     <string name="search_result_not_found">검색 결과가 없습니다.</string>
     <string name="more_search_result_not_found">검색 결과가 더 이상 없습니다.</string>
 

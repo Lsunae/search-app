@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference
 class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var searchResultAdapter: SearchResultAdapter
+    private var prevFavoriteList = arrayListOf<SearchResultData>()
     private var imagePage = 1
     private var videoPage = 1
     private var isNextPage = false
@@ -42,6 +43,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setListener()
         setMetaData()
         setSearchResultList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Utils.loadFavoriteSharedPreferences(requireContext())
+        val newFavoriteList = SingletonObject.favoriteList
+        if (prevFavoriteList.containsAll(newFavoriteList)) searchResultAdapter.notifyChange()
     }
 
     private fun setupView() {
@@ -101,8 +110,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
         searchResultAdapter.setOnItemClickListener(object :
             SearchResultAdapter.OnItemClickListener {
-            override fun onItemClick(item: SearchResultData) {
-                SingletonObject.addFavoriteImage(item)
+            override fun onItemClick(item: SearchResultData, isChecked: Boolean) {
+                if (isChecked) SingletonObject.addFavoriteImage(item)
+                else SingletonObject.removeFavoriteImage(item)
                 Utils.saveFavoriteSharedPreferences(requireContext())
             }
         })
@@ -110,6 +120,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun searchKeyword() {
         viewModel.apply {
+            Utils.loadFavoriteSharedPreferences(requireContext())
+            prevFavoriteList = SingletonObject.favoriteList
+
             val keyword = binding.etSearch.text.toString()
             searchKeyword(keyword, imagePage, videoPage, imageIsEnd, videoIsEnd)
             if (imageIsEnd && videoIsEnd) isNextPage = false
@@ -167,6 +180,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     }
 
     private fun resetData() {
+        binding.rvSearchResult.scrollToPosition(0)
         imagePage = 1
         videoPage = 1
         isNextPage = false

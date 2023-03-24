@@ -9,6 +9,10 @@ object SingletonObject {
         this.favoriteList.add(0, data)
     }
 
+    fun removeFavoriteImage(resultData: SearchResultData) {
+        this.favoriteList.remove(resultData)
+    }
+
     fun removeFavoriteImage(position: Int) {
         this.favoriteList.removeAt(position)
     }
