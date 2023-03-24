@@ -37,7 +37,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setAdapter()
         searchResultAdapter.searchFragment = WeakReference(this)
         setListener()
-        setViewModel()
+        setMetaData()
+        setSearchResultList()
     }
 
     private fun setupView() {
@@ -73,9 +74,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     val itemTotalCount = recyclerView.adapter?.itemCount ?: 0
 
                     if (lastVisibleItemPosition + 1 == itemTotalCount) {
-                        println("f_imageIsEnd_ $imageIsEnd")
-                        println("f_videoIsEnd_ $videoIsEnd")
-                        if (!imageIsEnd || !videoIsEnd) {
+                        val isMoreNotFound = viewModel.isMoreNotFount.value ?: false
+                        if (isMoreNotFound || !imageIsEnd || !videoIsEnd) {
                             isNextPage = true
                             if (!imageIsEnd) imagePage += 1
                             if (!videoIsEnd) videoPage += 1
@@ -103,25 +103,43 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         }
     }
 
-    private fun setViewModel() {
+    private fun setMetaData() {
         viewModel.apply {
-            imageMetadata.observe(viewLifecycleOwner) {
-                println("frag_image_isEnd_ ${it?.isEnd}")
-                imageIsEnd = it?.isEnd ?: true
-            }
-            videoMetadata.observe(viewLifecycleOwner) {
-                println("frag_video_isEnd_ ${it?.isEnd}")
-                videoIsEnd = it?.isEnd ?: true
-            }
+            imageMetadata.observe(viewLifecycleOwner) { imageIsEnd = it?.isEnd ?: true }
+            videoMetadata.observe(viewLifecycleOwner) { videoIsEnd = it?.isEnd ?: true }
+        }
+    }
+
+    private fun setSearchResultList() {
+        viewModel.apply {
+            var isMoreSearchNotFount = false
+            isMoreNotFount.observe(viewLifecycleOwner) { isMoreSearchNotFount = it ?: false }
             resultList.observe(viewLifecycleOwner) {
                 if (it.isNullOrEmpty()) {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.search_result_not_found),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    binding.apply {
+                        if (isMoreSearchNotFount || (imageIsEnd && videoIsEnd && !isNextPage)) {
+                            llSearchEmpty.visibility = View.GONE
+                            rvSearchResult.visibility = View.VISIBLE
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.more_search_result_not_found),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            llSearchEmpty.visibility = View.VISIBLE
+                            rvSearchResult.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.search_result_not_found),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 } else {
-                    println("isNextPage_ $isNextPage")
+                    binding.apply {
+                        llSearchEmpty.visibility = View.GONE
+                        rvSearchResult.visibility = View.VISIBLE
+                    }
                     if (isNextPage) searchResultAdapter.addNextData(it)
                     else searchResultAdapter.addData(it)
                 }

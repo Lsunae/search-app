@@ -41,8 +41,12 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
+    val isMoreNotFount = MutableLiveData<Boolean?>()
+
+    private var keyword = ""
     private var isImageLoading = false
     private var isVideoLoading = false
+
 
     fun searchKeyword(
         query: String,
@@ -51,6 +55,8 @@ class SearchViewModel @Inject constructor(
         imageIsEnd: Boolean,
         videoIsEnd: Boolean
     ) {
+        keyword = query
+
         viewModelScope.launch {
             isImageLoading = false
             isVideoLoading = false
@@ -63,8 +69,6 @@ class SearchViewModel @Inject constructor(
                         RECENCY
                     )
                     if (imageResponse.isSuccessful) {
-                        println("vm_image_meta_ ${imageResponse.body()?.metaData}")
-                        println("vm_image_isEnd_ ${imageResponse.body()?.metaData?.isEnd}")
                         _imageMetadata.value = imageResponse.body()?.metaData
                         _imageList.value = imageResponse.body()?.documents
 
@@ -79,17 +83,22 @@ class SearchViewModel @Inject constructor(
                     } else {
                         Log.e(
                             "[${javaClass.name}] Image Search Error ",
-                            "code: ${imageResponse.code()}, message: ${imageResponse.errorBody()?.string()}"
+                            "code: ${imageResponse.code()}, message: ${
+                                imageResponse.errorBody()?.string()
+                            }"
                         )
                     }
                     isImageLoading = true
-                } else Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
+                    isMoreNotFount.value = false
+                } else {
+                    isImageLoading = true
+                    isMoreNotFount.value = true
+                    Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
+                }
 
                 if (!videoIsEnd && videoPage <= VIDEO_MAX_PAGE) {
                     val videoResponse = videoRepository.searchVideo(query, videoPage, RECENCY)
                     if (videoResponse.isSuccessful) {
-                        println("vm_video_meta_ ${videoResponse.body()?.metaData}")
-                        println("vm_video_isEnd_ ${videoResponse.body()?.metaData?.isEnd}")
                         _videoMetadata.value = videoResponse.body()?.metaData
                         _videoList.value = videoResponse.body()?.documents
 
@@ -104,12 +113,17 @@ class SearchViewModel @Inject constructor(
                     } else {
                         Log.e(
                             "[${javaClass.name}] Video Search Error ",
-                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${videoResponse.errorBody()?.string()}"
+                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${
+                                videoResponse.errorBody()?.string()
+                            }"
                         )
                     }
                     isVideoLoading = true
+                    isMoreNotFount.value = false
                 }
             } catch (exception: IOException) {
+                isVideoLoading = true
+                isMoreNotFount.value = true
                 Log.e("[${javaClass.name}] Exception ", "${exception.message}")
             }
             searchResultData()
