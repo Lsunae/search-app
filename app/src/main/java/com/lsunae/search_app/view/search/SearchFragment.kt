@@ -1,6 +1,7 @@
 package com.lsunae.search_app.view.search
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -19,6 +20,7 @@ import com.lsunae.search_app.view.search.adapter.SearchResultAdapter
 import com.lsunae.search_app.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.ref.WeakReference
+
 
 @AndroidEntryPoint
 class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
@@ -42,9 +44,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     }
 
     private fun setupView() {
-        binding.apply {
-            incActionbar.tvTitle.text = getString(R.string.search)
-        }
+        binding.incActionbar.tvTitle.text = getString(R.string.search)
     }
 
     private fun setAdapter() {
@@ -64,6 +64,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     etSearch.hideKeyboard()
                 }
             })
+
+            etSearch.setOnKeyListener { view, keyCode, keyEvent ->
+                if ((keyEvent.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    resetData()
+                    searchKeyword()
+                    view?.hideKeyboard()
+                    true
+                } else {
+                    false
+                }
+            }
 
             rvSearchResult.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
