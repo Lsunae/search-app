@@ -148,7 +148,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                             rvSearchResult.visibility = View.VISIBLE
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.more_search_result_not_found),
+                                getString(R.string.search_more_result_empty),
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
@@ -156,7 +156,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                             rvSearchResult.visibility = View.GONE
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.search_result_not_found),
+                                getString(R.string.search_result_empty),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
