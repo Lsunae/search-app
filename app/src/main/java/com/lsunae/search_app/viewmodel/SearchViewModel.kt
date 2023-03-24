@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.lsunae.search_app.data.model.MetaData
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.data.model.image.ImageData
+import com.lsunae.search_app.data.model.image.ImageSearchResponse
 import com.lsunae.search_app.data.model.video.VideoData
+import com.lsunae.search_app.data.model.video.VideoSearchResponse
 import com.lsunae.search_app.data.repository.image.ImageSearchRepository
 import com.lsunae.search_app.data.repository.video.VideoSearchRepository
 import com.lsunae.search_app.util.Constants
@@ -18,6 +20,7 @@ import com.lsunae.search_app.util.Constants.Companion.VIDEO_MAX_PAGE
 import com.lsunae.search_app.util.ImageDateComparator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
@@ -41,11 +44,15 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
-    val isMoreNotFount = MutableLiveData<Boolean?>()
+    private val _isMoreNotFount = MutableLiveData<Boolean>()
+    val isMoreNotFount: LiveData<Boolean> get() = _isMoreNotFount
 
-    private var keyword = ""
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
     private var isImageLoading = false
     private var isVideoLoading = false
+
+    private var keyword = ""
 
 
     fun searchKeyword(
@@ -58,81 +65,92 @@ class SearchViewModel @Inject constructor(
         keyword = query
 
         viewModelScope.launch {
-            isImageLoading = false
-            isVideoLoading = false
+            isImageLoading = true
+            isVideoLoading = true
+            _isLoading.value = isImageLoading && isVideoLoading
 
             try {
                 if (!imageIsEnd && imagePage <= IMAGE_MAX_PAGE) {
-                    val imageResponse = imageRepository.searchImage(
-                        query,
-                        imagePage,
-                        RECENCY
-                    )
-                    if (imageResponse.isSuccessful) {
-                        _imageMetadata.value = imageResponse.body()?.metaData
-                        _imageList.value = imageResponse.body()?.documents
-
-                        _imageList.value?.forEach {
-                            val image = SearchResultData(
-                                thumbnail = it.thumbnail_url,
-                                dateTime = it.datetime,
-                                urlType = Constants.IMAGE
-                            )
-                            resultData.add(image)
-                        }
-                    } else {
-                        Log.e(
-                            "[${javaClass.name}] Image Search Error ",
-                            "code: ${imageResponse.code()}, message: ${
-                                imageResponse.errorBody()?.string()
-                            }"
-                        )
-                    }
-                    isImageLoading = true
-                    isMoreNotFount.value = false
+                    val imageResponse = imageRepository.searchImage(query, imagePage, RECENCY)
+                    searchImageResult(imageResponse)
                 } else {
-                    isImageLoading = true
-                    isMoreNotFount.value = true
+                    isImageLoading = false
+                    _isMoreNotFount.value = true
                     Log.i("[${javaClass.name}] ", "이미지 검색 결과 마지막 페이지 입니다.")
                 }
 
                 if (!videoIsEnd && videoPage <= VIDEO_MAX_PAGE) {
                     val videoResponse = videoRepository.searchVideo(query, videoPage, RECENCY)
-                    if (videoResponse.isSuccessful) {
-                        _videoMetadata.value = videoResponse.body()?.metaData
-                        _videoList.value = videoResponse.body()?.documents
-
-                        _videoList.value?.forEach {
-                            val image = SearchResultData(
-                                thumbnail = it.thumbnail,
-                                dateTime = it.datetime,
-                                urlType = Constants.VIDEO
-                            )
-                            resultData.add(image)
-                        }
-                    } else {
-                        Log.e(
-                            "[${javaClass.name}] Video Search Error ",
-                            "code: ${videoResponse.code()}, message: ${videoResponse.body()?.metaData}, message2: ${
-                                videoResponse.errorBody()?.string()
-                            }"
-                        )
-                    }
-                    isVideoLoading = true
-                    isMoreNotFount.value = false
+                    searchVideoResult(videoResponse)
+                } else {
+                    isVideoLoading = false
+                    _isMoreNotFount.value = true
+                    Log.i("[${javaClass.name}] ", "동영상 검색 결과 마지막 페이지 입니다.")
                 }
             } catch (exception: IOException) {
-                isVideoLoading = true
-                isMoreNotFount.value = true
+                isImageLoading = false
+                isVideoLoading = false
+                _isMoreNotFount.value = true
                 Log.e("[${javaClass.name}] Exception ", "${exception.message}")
             }
             searchResultData()
         }
     }
 
+    private fun searchImageResult(response: Response<ImageSearchResponse>) {
+        if (response.isSuccessful) {
+            _imageMetadata.value = response.body()?.metaData
+            _imageList.value = response.body()?.documents
+
+            _imageList.value?.forEach {
+                val image = SearchResultData(
+                    thumbnail = it.thumbnail_url,
+                    dateTime = it.datetime,
+                    urlType = Constants.IMAGE
+                )
+                resultData.add(image)
+            }
+        } else {
+            Log.e(
+                "[${javaClass.name}] Image Search Error ",
+                "code: ${response.code()}, message: ${
+                    response.errorBody()?.string()
+                }"
+            )
+        }
+        isImageLoading = false
+        _isMoreNotFount.value = false
+    }
+
+    private fun searchVideoResult(response: Response<VideoSearchResponse>) {
+        if (response.isSuccessful) {
+            _videoMetadata.value = response.body()?.metaData
+            _videoList.value = response.body()?.documents
+
+            _videoList.value?.forEach {
+                val image = SearchResultData(
+                    thumbnail = it.thumbnail,
+                    dateTime = it.datetime,
+                    urlType = Constants.VIDEO
+                )
+                resultData.add(image)
+            }
+        } else {
+            Log.e(
+                "[${javaClass.name}] Video Search Error ",
+                "code: ${response.code()}, message: ${
+                    response.errorBody()?.string()
+                }"
+            )
+        }
+        isVideoLoading = false
+        _isMoreNotFount.value = false
+    }
+
     private fun searchResultData() {
         Collections.sort(resultData, ImageDateComparator().reversed())
         _resultList.value = resultData
+        _isLoading.value = !(!isImageLoading && !isVideoLoading)
         resultData.clear()
     }
 }

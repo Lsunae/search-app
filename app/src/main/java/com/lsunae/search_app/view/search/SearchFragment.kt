@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -45,6 +46,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun setupView() {
         binding.incActionbar.tvTitle.text = getString(R.string.search)
+        setLoadingProgressBar()
     }
 
     private fun setAdapter() {
@@ -164,5 +166,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         isNextPage = false
         imageIsEnd = false
         videoIsEnd = false
+    }
+
+    private fun setLoadingProgressBar() {
+        viewModel.isLoading.observe(viewLifecycleOwner) {
+            binding.progressBar.isVisible = it
+        }
     }
 }
