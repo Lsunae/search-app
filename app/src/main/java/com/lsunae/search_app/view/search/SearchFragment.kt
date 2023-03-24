@@ -160,17 +160,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         }
     }
 
+    private fun setLoadingProgressBar() {
+        viewModel.isLoading.observe(viewLifecycleOwner) {
+            binding.progressBar.isVisible = it
+        }
+    }
+
     private fun resetData() {
         imagePage = 1
         videoPage = 1
         isNextPage = false
         imageIsEnd = false
         videoIsEnd = false
-    }
-
-    private fun setLoadingProgressBar() {
-        viewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBar.isVisible = it
-        }
     }
 }
