@@ -2,7 +2,7 @@ package com.lsunae.search_app.util
 
 import com.lsunae.search_app.data.model.SearchResultData
 
-object SingletonObject {
+object FavoriteDataManager {
     var favoriteList = arrayListOf<SearchResultData>()
 
     fun addFavoriteImage(data: SearchResultData) {

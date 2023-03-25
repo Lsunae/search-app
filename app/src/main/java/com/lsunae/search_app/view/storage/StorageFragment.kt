@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.lsunae.search_app.R
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.FragmentStorageBinding
-import com.lsunae.search_app.util.SingletonObject
+import com.lsunae.search_app.util.FavoriteDataManager
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.view.base.BaseFragment
 import com.lsunae.search_app.view.storage.adapter.StorageAdapter
@@ -45,9 +45,9 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
                 position: Int,
                 isChecked: Boolean
             ) {
-                if (isChecked) SingletonObject.addFavoriteImage(item)
+                if (isChecked) FavoriteDataManager.addFavoriteImage(item)
                 else {
-                    SingletonObject.removeFavoriteImage(position)
+                    FavoriteDataManager.removeFavoriteImage(position)
                     storageAdapter.notifyRemovedItem(position)
                 }
                 Utils.saveFavoriteSharedPreferences(requireContext())
@@ -61,7 +61,7 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
             isFirst = false
             Utils.loadFavoriteSharedPreferences(requireContext())
         }
-        storageAdapter.addItems(SingletonObject.favoriteList)
+        storageAdapter.addItems(FavoriteDataManager.favoriteList)
     }
 
     private fun setAdapter() {

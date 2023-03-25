@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
-import com.lsunae.search_app.util.SingletonObject
+import com.lsunae.search_app.util.FavoriteDataManager
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.glideImageSet
 import com.lsunae.search_app.view.search.SearchFragment
@@ -26,15 +26,20 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         onItemClickListener = listener
     }
 
-    fun addNextData(items: List<SearchResultData>) {
+    fun addNextItems(items: List<SearchResultData>) {
         val positionStart = imageList.count() + 1
         imageList.addAll(items)
         notifyItemRangeChanged(positionStart, imageList.size)
     }
 
-    fun addData(items: List<SearchResultData>) {
+    fun addItems(items: List<SearchResultData>) {
         imageList.clear()
         imageList.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    fun resetItems() {
+        imageList.clear()
         notifyDataSetChanged()
     }
 
@@ -78,7 +83,7 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         fun bind(item: SearchResultData) {
             binding.apply {
-                cbFavorite.isChecked = SingletonObject.favoriteList.contains(item)
+                cbFavorite.isChecked = FavoriteDataManager.favoriteList.contains(item)
 
                 item.thumbnail?.let { ivImage.glideImageSet(it) }
                 dateTime = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }

@@ -13,7 +13,7 @@ import com.lsunae.search_app.R
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.FragmentSearchBinding
 import com.lsunae.search_app.util.OnSingleClickListener
-import com.lsunae.search_app.util.SingletonObject
+import com.lsunae.search_app.util.FavoriteDataManager
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.hideKeyboard
 import com.lsunae.search_app.view.base.BaseFragment
@@ -33,6 +33,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private var isNextPage = false
     private var imageIsEnd = false
     private var videoIsEnd = false
+    private var isReset = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,7 +51,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         super.onResume()
 
         Utils.loadFavoriteSharedPreferences(requireContext())
-        val newFavoriteList = SingletonObject.favoriteList
+        val newFavoriteList = FavoriteDataManager.favoriteList
         if (prevFavoriteList.containsAll(newFavoriteList)) searchResultAdapter.notifyChange()
     }
 
@@ -96,9 +97,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
                     val itemTotalCount = recyclerView.adapter?.itemCount ?: 0
 
-                    if (lastVisibleItemPosition + 1 == itemTotalCount) {
+                    if (lastVisibleItemPosition + 1 == itemTotalCount && !isReset) {
+                        isReset = false
                         val isMoreNotFound = viewModel.isMoreNotFount.value ?: false
-                        if (isMoreNotFound || !imageIsEnd || !videoIsEnd) {
+
+                        if (!isMoreNotFound && !imageIsEnd || !videoIsEnd) {
                             isNextPage = true
                             if (!imageIsEnd) imagePage += 1
                             if (!videoIsEnd) videoPage += 1
@@ -112,8 +115,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         searchResultAdapter.setOnItemClickListener(object :
             SearchResultAdapter.OnItemClickListener {
             override fun onItemClick(item: SearchResultData, isChecked: Boolean) {
-                if (isChecked) SingletonObject.addFavoriteImage(item)
-                else SingletonObject.removeFavoriteImage(item)
+                if (isChecked) FavoriteDataManager.addFavoriteImage(item)
+                else FavoriteDataManager.removeFavoriteImage(item)
                 Utils.saveFavoriteSharedPreferences(requireContext())
             }
         })
@@ -122,11 +125,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun searchKeyword() {
         viewModel.apply {
             Utils.loadFavoriteSharedPreferences(requireContext())
-            prevFavoriteList = SingletonObject.favoriteList
+            prevFavoriteList = FavoriteDataManager.favoriteList
 
             val keyword = binding.etSearch.text.toString()
-
             if (keyword.isEmpty() && (imagePage == 1 && videoPage == 1)) {
+                isReset = true
+                resetData()
+                searchResultAdapter.resetItems()
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.search_keyword_empty),
@@ -176,8 +181,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                         llSearchEmpty.visibility = View.GONE
                         rvSearchResult.visibility = View.VISIBLE
                     }
-                    if (isNextPage) searchResultAdapter.addNextData(it)
-                    else searchResultAdapter.addData(it)
+                    if (isNextPage) searchResultAdapter.addNextItems(it)
+                    else searchResultAdapter.addItems(it)
                 }
             }
         }

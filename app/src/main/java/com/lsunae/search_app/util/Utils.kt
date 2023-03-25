@@ -21,7 +21,7 @@ object Utils {
             context.getSharedPreferences("shared preferences", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
-        val list = SingletonObject.favoriteList
+        val list = FavoriteDataManager.favoriteList
         val json = gson.toJson(list)
 
         editor.putString("imageStorage", json)
@@ -36,10 +36,10 @@ object Utils {
         val json = sharedPreferences.getString("imageStorage", null)
         val type: Type = object : TypeToken<ArrayList<SearchResultData?>?>() {}.type
 
-        SingletonObject.favoriteList = gson.fromJson<Any>(json, type) as ArrayList<SearchResultData>
+        FavoriteDataManager.favoriteList = gson.fromJson<Any>(json, type) as ArrayList<SearchResultData>
 
-        if (SingletonObject.favoriteList.isNullOrEmpty()) {
-            SingletonObject.favoriteList = ArrayList()
+        if (FavoriteDataManager.favoriteList.isNullOrEmpty()) {
+            FavoriteDataManager.favoriteList = ArrayList()
         }
     }
 }
