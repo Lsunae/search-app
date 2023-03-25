@@ -52,7 +52,7 @@ class SearchViewModel @Inject constructor(
 
     private val _currentKeyword = MutableLiveData<String>()
     val currentKeyword: LiveData<String> get() = _currentKeyword
-    var saveKeyword = ""
+    private var saveKeyword = ""
 
     private var isImageLoading = false
     private var isVideoLoading = false
