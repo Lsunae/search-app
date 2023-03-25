@@ -9,6 +9,7 @@ import com.lsunae.search_app.data.model.SearchResultData
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 object Utils {
     fun dateFormat(date: Date): String {
@@ -36,7 +37,8 @@ object Utils {
         val json = sharedPreferences.getString("imageStorage", null)
         val type: Type = object : TypeToken<ArrayList<SearchResultData?>?>() {}.type
 
-        FavoriteDataManager.favoriteList = gson.fromJson<Any>(json, type) as ArrayList<SearchResultData>
+        FavoriteDataManager.favoriteList =
+            gson.fromJson<Any>(json, type) as ArrayList<SearchResultData>? ?: arrayListOf()
 
         if (FavoriteDataManager.favoriteList.isNullOrEmpty()) {
             FavoriteDataManager.favoriteList = ArrayList()
