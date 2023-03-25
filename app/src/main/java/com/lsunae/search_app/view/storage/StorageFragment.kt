@@ -1,21 +1,34 @@
 package com.lsunae.search_app.view.storage
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.lsunae.search_app.R
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.FragmentStorageBinding
 import com.lsunae.search_app.util.FavoriteDataManager
 import com.lsunae.search_app.util.Utils
-import com.lsunae.search_app.view.base.BaseFragment
 import com.lsunae.search_app.view.storage.adapter.StorageAdapter
 import java.lang.ref.WeakReference
 
 
-class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_storage) {
+class StorageFragment : Fragment() {
+    private lateinit var binding: FragmentStorageBinding
     private lateinit var storageAdapter: StorageAdapter
     private var isFirst = true
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentStorageBinding.inflate(inflater, container, false)
+
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -34,7 +47,7 @@ class StorageFragment : BaseFragment<FragmentStorageBinding>(R.layout.fragment_s
 
     private fun setupView() {
         binding.apply {
-            incActionbar.tvTitle.text = getString(R.string.storage)
+            includeActionbar.tvTitle.text = getString(R.string.storage)
         }
     }
 

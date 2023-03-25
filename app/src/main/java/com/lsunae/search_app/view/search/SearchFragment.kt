@@ -2,9 +2,12 @@ package com.lsunae.search_app.view.search
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,11 +15,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lsunae.search_app.R
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.FragmentSearchBinding
-import com.lsunae.search_app.util.OnSingleClickListener
 import com.lsunae.search_app.util.FavoriteDataManager
+import com.lsunae.search_app.util.OnSingleClickListener
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.hideKeyboard
-import com.lsunae.search_app.view.base.BaseFragment
 import com.lsunae.search_app.view.search.adapter.SearchResultAdapter
 import com.lsunae.search_app.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +26,8 @@ import java.lang.ref.WeakReference
 
 
 @AndroidEntryPoint
-class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
+class SearchFragment : Fragment() {
+    private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var searchResultAdapter: SearchResultAdapter
     private var prevFavoriteList = arrayListOf<SearchResultData>()
@@ -34,6 +37,16 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private var imageIsEnd = false
     private var videoIsEnd = false
     private var isReset = false
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,7 +69,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     }
 
     private fun setupView() {
-        binding.incActionbar.tvTitle.text = getString(R.string.search)
+        binding.includeActionbar.tvTitle.text = getString(R.string.search)
         setLoadingProgressBar()
     }
 
@@ -112,9 +125,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             })
         }
 
-        searchResultAdapter.setOnItemClickListener(object :
-            SearchResultAdapter.OnItemClickListener {
-            override fun onItemClick(item: SearchResultData, isChecked: Boolean) {
+        searchResultAdapter.setOnFavoriteClickListener(object :
+            SearchResultAdapter.OnFavoriteClickListener {
+            override fun onFavoriteClick(item: SearchResultData, isChecked: Boolean) {
                 if (isChecked) FavoriteDataManager.addFavoriteImage(item)
                 else FavoriteDataManager.removeFavoriteImage(item)
                 Utils.saveFavoriteSharedPreferences(requireContext())

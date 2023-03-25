@@ -2,11 +2,13 @@ package com.lsunae.search_app.view.search.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lsunae.search_app.data.model.SearchResultData
 import com.lsunae.search_app.databinding.ItemImageBinding
 import com.lsunae.search_app.util.FavoriteDataManager
+import com.lsunae.search_app.util.OnSingleClickListener
 import com.lsunae.search_app.util.Utils
 import com.lsunae.search_app.util.glideImageSet
 import com.lsunae.search_app.view.search.SearchFragment
@@ -16,14 +18,14 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var context: Context
     private var imageList = mutableListOf<SearchResultData>()
     lateinit var searchFragment: WeakReference<SearchFragment>
-    private lateinit var onItemClickListener: OnItemClickListener
+    private lateinit var onFavoriteClickListener: OnFavoriteClickListener
 
-    interface OnItemClickListener {
-        fun onItemClick(item: SearchResultData, isChecked: Boolean)
+    interface OnFavoriteClickListener {
+        fun onFavoriteClick(item: SearchResultData, isChecked: Boolean)
     }
 
-    fun setOnItemClickListener(listener: OnItemClickListener) {
-        onItemClickListener = listener
+    fun setOnFavoriteClickListener(listener: OnFavoriteClickListener) {
+        onFavoriteClickListener = listener
     }
 
     fun addNextItems(items: List<SearchResultData>) {
@@ -86,11 +88,13 @@ class SearchResultAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 cbFavorite.isChecked = FavoriteDataManager.favoriteList.contains(item)
 
                 item.thumbnail?.let { ivImage.glideImageSet(it) }
-                dateTime = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
+                tvDateTime.text = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
 
-                cbFavorite.setOnClickListener {
-                    onItemClickListener.onItemClick(item, cbFavorite.isChecked)
-                }
+                cbFavorite.setOnClickListener(object : OnSingleClickListener() {
+                    override fun onSingleClick(v: View) {
+                        onFavoriteClickListener.onFavoriteClick(item, cbFavorite.isChecked)
+                    }
+                })
             }
         }
     }

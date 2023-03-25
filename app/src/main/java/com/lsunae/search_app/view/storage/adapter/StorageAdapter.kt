@@ -79,7 +79,7 @@ class StorageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         fun bind(item: SearchResultData, position: Int) {
             binding.apply {
                 item.thumbnail?.let { ivImage.glideImageSet(it) }
-                dateTime = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
+                tvDateTime.text = item.dateTime?.let { dateTime -> Utils.dateFormat(dateTime) }
 
                 cbFavorite.isChecked = true
                 cbFavorite.setOnClickListener(object : OnSingleClickListener() {
