@@ -12,6 +12,6 @@ class ImageSearchRepositoryImpl @Inject constructor(private val api: ImageSearch
         page: Int,
         sort: String
     ): Response<ImageSearchResponse> {
-        return api.searchImage(query = query, page = page, size = 5, sort = sort)
+        return api.searchImage(query = query, page = page, sort = sort)
     }
 }

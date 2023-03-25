@@ -12,6 +12,6 @@ class VideoSearchRepositoryImpl @Inject constructor(private val api: VideoSearch
         page: Int,
         sort: String
     ): Response<VideoSearchResponse> {
-        return api.searchVideo(query = query, page = page, size = 5, sort = sort)
+        return api.searchVideo(query = query, page = page, sort = sort)
     }
 }
