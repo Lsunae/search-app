@@ -30,7 +30,6 @@ class SearchFragment : Fragment() {
     private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var searchResultAdapter: SearchResultAdapter
-    private var prevFavoriteList = arrayListOf<SearchResultData>()
     private var imagePage = 1
     private var videoPage = 1
     private var isNextPage = false
@@ -63,9 +62,10 @@ class SearchFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        Utils.loadFavoriteSharedPreferences(requireContext())
-        val newFavoriteList = FavoriteDataManager.favoriteList
-        if (prevFavoriteList.containsAll(newFavoriteList)) searchResultAdapter.notifyChange()
+        if (FavoriteDataManager.isFavoriteListChange) {
+            FavoriteDataManager.isFavoriteListChange = false
+            searchResultAdapter.notifyChange()
+        }
     }
 
     private fun setupView() {
@@ -137,9 +137,6 @@ class SearchFragment : Fragment() {
 
     private fun searchKeyword() {
         viewModel.apply {
-            Utils.loadFavoriteSharedPreferences(requireContext())
-            prevFavoriteList = FavoriteDataManager.favoriteList
-
             val keyword = binding.etSearch.text.toString()
             if (keyword.isEmpty() && (imagePage == 1 && videoPage == 1)) {
                 isReset = true

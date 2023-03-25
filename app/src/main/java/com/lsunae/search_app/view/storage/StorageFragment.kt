@@ -65,6 +65,7 @@ class StorageFragment : Fragment() {
                 }
                 Utils.saveFavoriteSharedPreferences(requireContext())
                 storageAdapter.notifyChange()
+                FavoriteDataManager.isFavoriteListChange = true
             }
         })
     }
