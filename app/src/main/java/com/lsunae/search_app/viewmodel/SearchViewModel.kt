@@ -44,8 +44,8 @@ class SearchViewModel @Inject constructor(
     private val _videoMetadata = MutableLiveData<MetaData?>()
     val videoMetadata: LiveData<MetaData?> get() = _videoMetadata
 
-    private val _isMoreNotFount = MutableLiveData<Boolean>()
-    val isMoreNotFount: LiveData<Boolean> get() = _isMoreNotFount
+    private val _isMoreNotFound = MutableLiveData<Boolean>()
+    val isMoreNotFound: LiveData<Boolean> get() = _isMoreNotFound
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -66,8 +66,8 @@ class SearchViewModel @Inject constructor(
     ) {
         if ((imagePage == 1 && videoPage == 1) && _currentKeyword.value != query) {
             saveKeyword = query
+            _currentKeyword.value = saveKeyword
         } else _currentKeyword.value = saveKeyword
-
         viewModelScope.launch {
             isImageLoading = true
             isVideoLoading = true
@@ -80,7 +80,7 @@ class SearchViewModel @Inject constructor(
                     searchImageResult(imageResponse)
                 } else {
                     isImageLoading = false
-                    _isMoreNotFount.value = true
+                    _isMoreNotFound.value = true
                     Log.i(
                         "[${javaClass.name}] ",
                         "This is the last page of the image search results."
@@ -93,7 +93,7 @@ class SearchViewModel @Inject constructor(
                     searchVideoResult(videoResponse)
                 } else {
                     isVideoLoading = false
-                    _isMoreNotFount.value = true
+                    _isMoreNotFound.value = true
                     Log.i(
                         "[${javaClass.name}] ",
                         "This is the last page of the video search results."
@@ -102,7 +102,7 @@ class SearchViewModel @Inject constructor(
             } catch (exception: IOException) {
                 isImageLoading = false
                 isVideoLoading = false
-                _isMoreNotFount.value = true
+                _isMoreNotFound.value = false
                 Log.e("[${javaClass.name}] Exception ", "${exception.message}")
             }
             searchResultData()
@@ -131,7 +131,7 @@ class SearchViewModel @Inject constructor(
             )
         }
         isImageLoading = false
-        _isMoreNotFount.value = false
+        _isMoreNotFound.value = false
     }
 
     private fun searchVideoResult(response: Response<VideoSearchResponse>) {
@@ -156,7 +156,7 @@ class SearchViewModel @Inject constructor(
             )
         }
         isVideoLoading = false
-        _isMoreNotFount.value = false
+        _isMoreNotFound.value = false
     }
 
     private fun searchResultData() {

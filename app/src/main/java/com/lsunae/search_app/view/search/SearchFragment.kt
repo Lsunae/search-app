@@ -112,7 +112,7 @@ class SearchFragment : Fragment() {
 
                     if (lastVisibleItemPosition + 1 == itemTotalCount && !isReset) {
                         isReset = false
-                        val isMoreNotFound = viewModel.isMoreNotFount.value ?: false
+                        val isMoreNotFound = viewModel.isMoreNotFound.value ?: false
 
                         if (!isMoreNotFound && !imageIsEnd || !videoIsEnd) {
                             isNextPage = true
@@ -151,6 +151,7 @@ class SearchFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
+                isReset = false
                 searchKeyword(keyword, imagePage, videoPage, imageIsEnd, videoIsEnd)
             }
             if (imageIsEnd && videoIsEnd) isNextPage = false
@@ -166,12 +167,12 @@ class SearchFragment : Fragment() {
 
     private fun setSearchResultList() {
         viewModel.apply {
-            var isMoreSearchNotFount = false
-            isMoreNotFount.observe(viewLifecycleOwner) { isMoreSearchNotFount = it ?: false }
+            var isMoreSearchNotFound = false
+            isMoreNotFound.observe(viewLifecycleOwner) { isMoreSearchNotFound = it ?: false }
             resultList.observe(viewLifecycleOwner) {
                 if (it.isNullOrEmpty()) {
                     binding.apply {
-                        if (isMoreSearchNotFount || (imageIsEnd && videoIsEnd && !isNextPage)) {
+                        if ((isMoreSearchNotFound && imageIsEnd && videoIsEnd)) {
                             llSearchEmpty.visibility = View.GONE
                             rvSearchResult.visibility = View.VISIBLE
                             Toast.makeText(
