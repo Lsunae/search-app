@@ -11,8 +11,8 @@
 - LiveData
 - Coroutine
 - Hilt
+- Retrofit
 - ViewBinding
 - Glide
 - SharedPreferences
-- Retrofit
 - Kakao Open API
